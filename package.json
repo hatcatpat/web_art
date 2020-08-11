@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "babylonjs": "^4.1.0",
     "dat.gui": "^0.7.7",
     "three": "^0.119.1"
   },
