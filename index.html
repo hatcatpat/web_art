@@ -39,19 +39,26 @@
     <script type="text/javascript">
       var container = document.getElementById("square-container")
       
-      function addPage(p){
+      function addPage(p,inf){
 	var div = document.createElement("div")
 	div.className = "square"
 	var a = document.createElement("a")
 	a.className = "content"
 	a.href = "pages/"+p+"/index.html"
 	var text = document.createTextNode(p)
+	
+	var datediv = document.createElement("div")
+	datediv.className = "date"
+	var datetext = document.createTextNode(inf)
+	datediv.appendChild(datetext)
+
 	a.appendChild(text)
 	div.appendChild(a)
+	div.appendChild(datediv)
 	container.appendChild(div)
       }
 
-      addPage("lightballs")
+      addPage("lightballs","threejs 10 8 20")
 
       const letters = "a b c d e f g h i j l m n o p q r s t u v w x y z \n \n \n".split(" ")
       for(var i=0; i < 10; i++){
@@ -60,7 +67,7 @@
 	  s[j] = letters[ Math.floor( Math.random()*letters.length ) ]
 	}
 	s = s.join("")
-	addPage(String(s))
+	addPage(String(s),"")
       }
 
       var blocks = document.getElementsByClassName("content")
