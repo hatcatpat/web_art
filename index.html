@@ -8,26 +8,101 @@
   </head>
 
   <body>
-    <div class="square-container">
-      <div class="square">
-        <h1 class="content">pat</h1>
-      </div>
+    <div id="square-container">
 
       <div class="square">
-        <a href="pages/lightballs/index.html" class="content">lightballs </a>
+	<div class="content">
+	  <div class="flip-card">
+	    <div class="flip-card-inner">
+	      <div class="flip-card-front"><h1>pat</h1></div>
+	      <div class="flip-card-back">
+		<table>
+		<tr>
+		  <td><a class="flip-card-link" href="https://www.instagram.com/mostly_patrick/">instagram</a></td>
+		</tr>
+		<tr>
+		  <td><a class="flip-card-link" href="https://www.youtube.com/channel/UCYHXUI_bpaoyol9YxF1qkaA/featured">youtube</a></td>
+		</tr>
+		<tr>
+		  <td><a class="flip-card-link" href="https://mostlypat.wordpress.com/">wordpress</a></td>
+		</tr>
+		</table>
+	      </div>
+
+	    </div>
+	  </div>
+	</div>
       </div>
 
-      <div class="square">
-        <a href="pages/lightballs/index.html" class="content">lightballs </a>
-      </div>
-
-      <div class="square">
-        <a href="pages/lightballs/index.html" class="content">lightballs </a>
-      </div>
-
-      <div class="square">
-        <a href="pages/lightballs/index.html" class="content">lightballs </a>
-      </div>
     </div>
+
+    <script type="text/javascript">
+      var container = document.getElementById("square-container")
+      
+      function addPage(p){
+	var div = document.createElement("div")
+	div.className = "square"
+	var a = document.createElement("a")
+	a.className = "content"
+	a.href = "pages/"+p+"/index.html"
+	var text = document.createTextNode(p)
+	a.appendChild(text)
+	div.appendChild(a)
+	container.appendChild(div)
+      }
+
+      addPage("lightballs")
+
+      const letters = "a b c d e f g h i j l m n o p q r s t u v w x y z \n \n \n".split(" ")
+      for(var i=0; i < 10; i++){
+	var s = new Array( Math.floor( Math.random()*10+1 ) )
+	for(var j=0; j < s.length; j++){
+	  s[j] = letters[ Math.floor( Math.random()*letters.length ) ]
+	}
+	s = s.join("")
+	addPage(String(s))
+      }
+
+      var blocks = document.getElementsByClassName("content")
+      var colors = new Array(blocks.length)
+      var w = 4
+      
+      function grayColor(c){
+	return "rgb("+c+","+c+","+c+")"
+      }
+
+      for(var i=1; i < blocks.length; i++){
+	var c = Math.random() * 2 * Math.PI
+	colors[i] = [c, Math.random()*0.005+0.001 ]
+      }
+
+      function colorBlocks(){
+	var scroll = document.documentElement.scrollTop
+	var size = document.getElementsByClassName("flip-card")[0].getBoundingClientRect().height
+	
+	for(var i=1; i < blocks.length; i++){
+	  var y = blocks[i].getBoundingClientRect().y + scroll
+
+	  if( y > scroll-size && y < scroll+window.innerHeight) {
+	    var c = (0.5 + Math.sin( colors[i][0] )/2) * 255
+	    blocks[i].parentElement.style.background = grayColor(c)
+	    blocks[i].parentElement.style.color = grayColor((c+(255/4) )%255) 
+
+	    colors[i][0] += colors[i][1]
+	    colors[i][0] %= Math.PI*2
+	  }
+
+	}
+
+	requestAnimationFrame(colorBlocks)
+      }
+      colorBlocks()
+
+      window.requestAnimationFrame(colorBlocks)
+
+    </script>
+
+    <div id="footer"> :) </div>
+
   </body>
 </html>
