@@ -1,6 +1,8 @@
 import * as THREE from "../../node_modules/three/build/three.module.js"
 window.THREE = THREE
 
+import * as SHADERS from "../../utils/General/shaders.js"
+
 import { OrbitControls } from "../../node_modules/three/examples/jsm/controls/OrbitControls.js"
 
 setup({ antialias: true })
@@ -60,7 +62,7 @@ const seg = 64 * 8,
   closed = false
 var radius = 0.03
 
-var light
+var light, tube_uniforms
 function main() {
   const color = 0x000000
   const near = 0
@@ -75,17 +77,18 @@ function main() {
   //var mat = new THREE.MeshBasicMaterial(0x000000)
   //mat.fog = true
 
-  var uniforms = {
+  tube_uniforms = {
     col: { value: new Vector3(1, 1, 1) },
     fogColor: { value: scene.fog.color },
     fogNear: { value: scene.fog.near },
     fogFar: { value: scene.fog.far },
+    t: { value: 0 },
   }
   var vertexShader = document.getElementById("vertexShader").text
   //var fragmentShader = document.getElementById("fragmentShader").text
-  var fragmentShader = noiseFogShader()
+  var fragmentShader = SHADERS.frag.noiseFogShader()
   var mat = new THREE.ShaderMaterial({
-    uniforms: uniforms,
+    uniforms: tube_uniforms,
     vertexShader: vertexShader,
     fragmentShader: fragmentShader,
     fog: true,
@@ -216,6 +219,8 @@ function getCenter() {
 function animate() {
   warpToTarget()
   getCenter()
+
+  tube_uniforms.t.value = performance.now()
 
   renderer.render(scene, camera)
   requestAnimationFrame(animate)
