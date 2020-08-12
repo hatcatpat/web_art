@@ -4,6 +4,7 @@ window.THREE = THREE
 import { OrbitControls } from "../../node_modules/three/examples/jsm/controls/OrbitControls.js"
 
 setup({ antialias: true })
+//setup()
 //
 //
 //
@@ -15,8 +16,18 @@ function generateWormArray() {
   var r = 0.05
   var p = new Vector3(0, 0, 0)
   var th = rand(0, PI)
-  var psi = rand(0, TWOPI)
-  var osp = { th: rand(0.01, 0.3), psi: rand(0.01, 0.3) }
+  //var psi = rand(0, TWOPI)
+  var psi = 0
+
+  //var osp = { th: rand(0.01, 0.3), psi: rand(0.01, 0.3) }
+  //var loops = randint(2, 32)
+  //var osp = { th: rand(0.01, 0.2), psi: TWOPI / (res * loops ) }
+
+  var osp = {
+    th: PI / (res / randint(2, 32)),
+    psi: TWOPI / (res / randint(2, 32)),
+  }
+
   var sp = { th: osp.th, psi: osp.psi }
   arr.push(p)
   for (var i = 0; i < res; i++) {
@@ -43,35 +54,46 @@ function generateWorm(arr) {
 }
 
 var res = 500
-var controls
 var tube, tube_arr, orig_arr
-const seg = 64 * 4,
+const seg = 64 * 8,
   rseg = 8 * 4,
-  closed = true
+  closed = false
 var radius = 0.03
 
+var light
 function main() {
-  var light = new THREE.PointLight(0xffffff, 1)
-  light.position.set(2, 2, 2)
-  scene.add(light)
-
-  var light2 = new THREE.PointLight(0xfffffff, 1)
-  light2.position.set(-2, -2, -2)
-  scene.add(light2)
-
-  controls = new OrbitControls(camera, renderer.domElement)
-  controls.enableDamping = true
-  controls.autoRotate = true
-  window.controls = controls
+  const color = 0x000000
+  const near = 0
+  const far = 5
+  scene.fog = new THREE.Fog(color, near, far)
 
   const arr = generateWormArray()
   const curve = generateWorm(arr)
   tube_arr = arr
   orig_arr = arr
 
+  //var mat = new THREE.MeshBasicMaterial(0x000000)
+  //mat.fog = true
+
+  var uniforms = {
+    col: { value: new Vector3(1, 1, 1) },
+    fogColor: { value: scene.fog.color },
+    fogNear: { value: scene.fog.near },
+    fogFar: { value: scene.fog.far },
+  }
+  var vertexShader = document.getElementById("vertexShader").text
+  //var fragmentShader = document.getElementById("fragmentShader").text
+  var fragmentShader = noiseFogShader()
+  var mat = new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+    fog: true,
+  })
+
   tube = new THREE.Mesh(
     new THREE.TubeBufferGeometry(curve, seg, radius, rseg, closed),
-    new THREE.MeshPhongMaterial({ color: 0xff0000 })
+    mat
   )
   scene.add(tube)
   window.tube = tube
@@ -128,6 +150,8 @@ var target_arr
 function setRandomWarpTarget() {
   orig_arr = tube_arr
   target_arr = generateWormArray()
+
+  warp_dur = rand(10, 60)
 }
 
 var warp_dur = 60
@@ -160,19 +184,36 @@ function warpToTarget() {
   }
 }
 
+var cam_th = 0
+var cam_psi = 0
 function getCenter() {
   var mean = new Vector3(0, 0, 0)
+  var max_dist = 0
   for (var i = 0; i < tube_arr.length; i++) {
     mean.add(tube_arr[i])
+    var l = tube_arr[i].length()
+    if (l > max_dist) {
+      max_dist = l
+    }
   }
   mean.divideScalar(tube_arr.length)
 
-  controls.target = mean
+  camera.lookAt(mean.x, mean.y, mean.z)
+  //max_dist *= 0.5
+  camera.position.set(
+    max_dist * sin(cam_th) * cos(cam_psi),
+    max_dist * sin(cam_th) * sin(cam_psi),
+    max_dist * cos(cam_th)
+  )
+
+  cam_th += 0.02
+  cam_psi += 0.02
+
+  camera.updateMatrix()
+  camera.updateProjectionMatrix()
 }
 
 function animate() {
-  controls.update()
-
   warpToTarget()
   getCenter()
 

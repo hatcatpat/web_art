@@ -21,6 +21,18 @@
 
   <body>
     <canvas id="canvas"></canvas>
+
+    <script id="vertexShader" type="x-shader/x-vertex">
+      varying vec2 vUv;
+      varying vec3 vPosition;
+      void main( void ) {
+        vUv = uv;
+        vPosition = position;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+      }
+    </script>
+
+    <script src="shaders.js"></script>
     <script src="main.js" type="module"></script>
   </body>
 </html>
