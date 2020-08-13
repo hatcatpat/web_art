@@ -1,4 +1,7 @@
-function random(){
+//
+//	UTILS
+//
+function random() {
   return `
     float random (vec2 st) {
       return fract(sin(dot(st.xy,
@@ -8,7 +11,7 @@ function random(){
   `
 }
 
-function noise(){
+function noise() {
   return `
     // 2D Noise based on Morgan McGuire @morgan3d
     // https://www.shadertoy.com/view/4dS3Wd
@@ -36,18 +39,24 @@ function noise(){
   `
 }
 
+export var utils = { noise: noise, random: random }
+
+//
+//	FRAG
+//
 function noiseFogShader() {
-  return `
+  return (
+    `
     varying vec2 vUv;
     uniform vec3 col;
     uniform vec3 fogColor;
     uniform float fogNear;
     uniform float fogFar;
     uniform float t;
-    ` 
-    + random()
-    + noise()
-    + `
+    ` +
+    random() +
+    noise() +
+    `
     void main() {
       gl_FragColor = vec4(col,1.0) * (noise(gl_FragCoord.st*8.0)/3.0) * 4.0;
       #ifdef USE_FOG
@@ -61,8 +70,46 @@ function noiseFogShader() {
       #endif
     }
   `
+  )
 }
 
-// red red red
-export var frag = { noiseFogShader: noiseFogShader }
-export var vert = {  }
+function fogShader() {
+  return `
+    varying vec2 vUv;
+    uniform vec3 col;
+    uniform vec3 fogColor;
+    uniform float fogNear;
+    uniform float fogFar;
+    uniform float t;
+    void main() {
+      gl_FragColor = vec4(col,1.0);
+      #ifdef USE_FOG
+	#ifdef USE_LOGDEPTHBUF_EXT
+	  float depth = gl_FragDepthEXT / gl_FragCoord.w;
+	#else
+	  float depth = gl_FragCoord.z / gl_FragCoord.w;
+	#endif
+	  float fogFactor = smoothstep( fogNear, fogFar, depth );
+	gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
+      #endif
+    }
+  `
+}
+
+export var frag = { fogShader: fogShader, noiseFogShader: noiseFogShader }
+//
+//	VERT
+//
+function basicVert() {
+  return `
+      varying vec2 vUv;
+      varying vec3 vPosition;
+      void main( void ) {
+        vUv = uv;
+        vPosition = position;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+      }
+  `
+}
+
+export var vert = { basic: basicVert }

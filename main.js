@@ -19,7 +19,7 @@ function addPage(p, inf) {
   container.appendChild(div)
 }
 
-addPage("soundplane", "three 12 8 20")
+addPage("noiseplane", "three 12 8 20")
 addPage("wormsphere", "three 11 8 20")
 addPage("lightballs", "three 10 8 20")
 addPage("badsphere", "babylon 7 8 20")
