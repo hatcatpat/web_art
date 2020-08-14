@@ -32,16 +32,23 @@ function main() {
   light.position.set(1, 1, 1)
   input_scene.add(light)
 
-  cube = new THREE.Mesh(
-    new THREE.CubeGeometry(20, 20, 20),
-    new THREE.MeshPhongMaterial({ color: 0x00ff00 })
-  )
-  input_scene.add(cube)
+  var video = document.getElementById("video")
+  window.video = video
+  video.playbackRate = 4
+  video.play()
+  var vidtex = new THREE.VideoTexture(video)
+
+  //cube = new THREE.Mesh(
+  //new THREE.CubeGeometry(20, 20, 20),
+  //new THREE.MeshPhongMaterial({ color: 0xffffff })
+  //)
+  //input_scene.add(cube)
 
   var cube2 = new THREE.Mesh(
     new THREE.PlaneGeometry(100, 100),
-    new THREE.MeshPhongMaterial({ color: 0xffffff })
+    new THREE.MeshBasicMaterial({ color: 0xffffff, map: vidtex })
   )
+
   cube2.position.z = -10
   input_scene.add(cube2)
 
@@ -52,8 +59,8 @@ function main() {
 
   uniforms = {
     u_time: { value: 0.0 },
-    u_dot_res: { value: 3.0 },
-    u_dot_num: { value: 50 },
+    u_dot_res: { value: 1.0 },
+    u_dot_num: { value: 100 },
     u_res: { value: new Vector2(width, height) },
     u_tex: { value: input_tex.texture },
   }
@@ -74,9 +81,15 @@ main()
 function animate() {
   uniforms.u_time.value = performance.now() / 1000
 
-  cube.rotation.x += 0.01
-  cube.rotation.y += 0.01
-  cube.rotation.z += 0.02
+  //cube.rotation.x += 0.01
+  //cube.rotation.y += 0.01
+  //cube.rotation.z += 0.02
+
+  //cube.material.color = new THREE.Color(
+  //1,
+  //map(sin(performance.now() / 1000), 0, 1, -1, 1),
+  //map(cos(performance.now() / 1000), 0, 1, -1, 1)
+  //)
 
   renderer.setRenderTarget(input_tex)
   renderer.render(input_scene, camera)
