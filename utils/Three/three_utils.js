@@ -19,9 +19,9 @@ function setup(renderer_options) {
   scene.background = new THREE.Color(0xffffff)
   window.scene = scene
 
-  camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000)
-  camera.position.z = 2
-  window.camera = camera
+  //camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000)
+  //camera.position.z = 2
+  //window.camera = camera
 
   window.addEventListener("resize", onWindowResize, false)
 }

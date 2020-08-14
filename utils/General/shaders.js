@@ -1,8 +1,50 @@
 //
 //	UTILS
 //
-function random() {
-  return `
+
+export function map() {
+  return `\n
+  float map(float x, float out_min, float out_max,
+		     float in_min, float in_max){
+      return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+  }
+  `
+}
+
+export function line() {
+  return `\n
+  float lineEq(vec2 st, vec2 A, vec2 B){
+    if(B.x == A.x){
+      return abs(st.x - A.x);
+    } else {
+      float m = (B.y-A.y) / (B.x-A.x);
+      float c = (A.y*B.x - A.x*B.y) / (B.x-A.x);
+      return abs( st.y - m*st.x - c );
+    }
+  }
+  float line_blur = 10.0;
+  vec3 line(vec2 st, vec2 start, vec2 end, float width){
+    float leq = lineEq(st,start,end);
+    float len = length(end-start);
+    if (leq < width && max( length(st-start), length(st-end) ) < len ){
+      return vec3( floor( smoothstep(0.0,1.0, leq/width * line_blur )*2.0 ) );
+    } else {
+      return vec3(1.0);
+    }
+  }
+  `
+}
+
+export function nearest() {
+  return `\n
+    float nearest(float x, float d){
+      return floor(x/d)*d;
+    }
+  `
+}
+
+export function random() {
+  return `\n
     float random (vec2 st) {
       return fract(sin(dot(st.xy,
 	vec2(12.9898,78.233)))*
@@ -11,8 +53,10 @@ function random() {
   `
 }
 
-function noise() {
-  return `
+export function noise() {
+  return (
+    random() +
+    `\n
     // 2D Noise based on Morgan McGuire @morgan3d
     // https://www.shadertoy.com/view/4dS3Wd
     float noise (in vec2 st) {
@@ -37,16 +81,15 @@ function noise() {
 		(d - b) * u.x * u.y;
     }
   `
+  )
 }
-
-export var utils = { noise: noise, random: random }
 
 //
 //	FRAG
 //
 function noiseFogShader() {
   return (
-    `
+    `\n
     varying vec2 vUv;
     uniform vec3 col;
     uniform vec3 fogColor;
@@ -56,7 +99,7 @@ function noiseFogShader() {
     ` +
     random() +
     noise() +
-    `
+    `\n
     void main() {
       gl_FragColor = vec4(col,1.0) * (noise(gl_FragCoord.st*8.0)/3.0) * 4.0;
       #ifdef USE_FOG
@@ -74,7 +117,7 @@ function noiseFogShader() {
 }
 
 function fogShader() {
-  return `
+  return `\n
     varying vec2 vUv;
     uniform vec3 col;
     uniform vec3 fogColor;
@@ -101,7 +144,7 @@ export var frag = { fogShader: fogShader, noiseFogShader: noiseFogShader }
 //	VERT
 //
 function basicVert() {
-  return `
+  return `\n
       varying vec2 vUv;
       varying vec3 vPosition;
       void main( void ) {
