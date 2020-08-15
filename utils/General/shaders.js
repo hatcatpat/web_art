@@ -2,6 +2,17 @@
 //	UTILS
 //
 
+export function circle() {
+  return `\n
+  float circle(in vec2 _st, in vec2 c, in float _radius){
+    vec2 dist = _st-c;
+      return 1.-smoothstep(_radius-(_radius*0.01),
+			   _radius+(_radius*0.01),
+			   dot(dist,dist)*4.0);
+  }
+  `
+}
+
 export function hsb() {
   return `\n
   vec3 rgb2hsb(vec3 c){

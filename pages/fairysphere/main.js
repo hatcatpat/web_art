@@ -44,12 +44,7 @@ function input() {
     color: 0xffffff,
     shininess: 1,
     envMap: input_scene.background,
-    fog: true,
   })
-  //var mat = new THREE.MeshBasicMaterial({
-  //color: 0xffffff,
-  //envMap: input_scene.background,
-  //})
 
   shape = new THREE.Mesh(geom, mat)
   input_scene.add(shape)
