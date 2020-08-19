@@ -75,8 +75,10 @@ function makeMorphTarget(geometry) {
   geometry.morphTargets.push({ name: "target" + i, vertices: vertices })
 }
 
-var res = randint(4, 16),
-  num = randint(10, 1000)
+//var res = randint(4, 16),
+//num = randint(10, 1000)
+var res = 16,
+  num = 100
 function pillarGeom() {
   var vertices = []
   var faces = []
@@ -86,7 +88,7 @@ function pillarGeom() {
   //var h = rand(0.5, 3)
   var h = 2
   var r_lo = 0.0
-  var r_hi = rand(1, 6)
+  var r_hi = rand(1, 5)
   for (var i = 0; i < num; i++) {
     var r = map(i / num, r_lo, r_hi, 0, 1)
     var bot_ring = makeRing(i, h, prev_r)
@@ -109,23 +111,37 @@ function pillarGeom() {
   geometry.vertices = vertices
   geometry.faces = faces
 
+  return geometry
+}
+
+var num_morphs = 8
+function addPillar() {
+  var material = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    shininess: 0.0,
+    morphTargets: true,
+    side: THREE.DoubleSide,
+  })
+
+  var geometry = pillarGeom()
+
+  for (var i = 0; i < num_morphs; i++) {
+    currentPillar++
+    var morph_geom = pillarGeom()
+
+    var vertices = []
+    for (var v = 0; v < geometry.vertices.length; v++) {
+      vertices.push(morph_geom.vertices[v].clone())
+    }
+    geometry.morphTargets.push({ name: "target", vertices: vertices })
+  }
+
   var buffer_geometry = new THREE.BufferGeometry().fromGeometry(geometry)
   buffer_geometry.computeBoundingSphere()
   buffer_geometry.computeFaceNormals()
   buffer_geometry.computeVertexNormals()
 
-  return buffer_geometry
-}
-
-function addPillar() {
-  var material = new THREE.MeshPhongMaterial({
-    color: 0xffffff,
-    shininess: 0.0,
-    //bumpMap: pillarTex.texture,
-    //map: pillarTex.texture,
-  })
-
-  var mesh = new THREE.Mesh(pillarGeom(), material)
+  var mesh = new THREE.Mesh(buffer_geometry, material)
   mesh.receiveShadow = true
   mesh.castShadow = true
   scene.add(mesh)
@@ -133,25 +149,29 @@ function addPillar() {
   return mesh
 }
 
-var controls, lights, pillars
+var controls, lights, pillar
 var currentPillar = 0
-var uniforms, pillarTex, pillarTexScene, pillarCamera
 function main() {
-  scene.background = new THREE.Color(0x555555)
+  //scene.background = new THREE.Color(0x000000)
 
   renderer.shadowMap.enabled = true
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap
+
   perlin = new ImprovedNoise()
+
+  controls = new OrbitControls(camera, renderer.domElement)
 
   camera.position.set(14, 8, 14)
   camera.lookAt(0, 8, 0)
   camera.updateProjectionMatrix()
-  //controls = new OrbitControls(camera, renderer.domElement)
+  controls.target = new THREE.Vector3(0, 8, 0)
+  controls.update()
 
   lights = {
-    point: new THREE.PointLight(0xffffff, 0.2),
-    point2: new THREE.PointLight(0xffffff, 0.2),
-    point3: new THREE.PointLight(0xffffff, 0.2),
-    ambient: new THREE.AmbientLight(0xffffff, 0.6),
+    point: new THREE.PointLight(0xffffff, 0.3),
+    point2: new THREE.PointLight(0xffffff, 0.3),
+    //point3: new THREE.PointLight(0xffffff, 0.3),
+    ambient: new THREE.AmbientLight(0xffffff, 0.4),
   }
   lights.point.castShadow = true
   lights.point.position.set(4, 4, 4)
@@ -159,8 +179,17 @@ function main() {
   lights.point2.castShadow = true
   lights.point2.position.set(-4, 4, 4)
   scene.add(lights.point2)
-  lights.point3.position.set(16, 8, 16)
-  scene.add(lights.point3)
+
+  lights.point.shadow.camera.near = 0
+  lights.point.shadow.camera.far = 16
+  lights.point.shadow.bias = 0.001
+
+  lights.point2.shadow.camera.near = 0
+  lights.point2.shadow.camera.far = 16
+  lights.point2.shadow.bias = 0.001
+
+  //lights.point3.position.set(16, 8, 16)
+  //scene.add(lights.point3)
 
   scene.add(lights.ambient)
   window.lights = lights
@@ -168,40 +197,19 @@ function main() {
   // pillars
   //
 
-  //pillarTex = new THREE.WebGLRenderTarget(width, height)
-  //pillarTexScene = new THREE.Scene()
+  pillar = addPillar()
+  window.pillar = pillar
 
-  //var pillarWidth = 1
-  //var pillarHeight = 1
-  //pillarCamera = new THREE.OrthographicCamera(
-  //0,
-  //pillarWidth,
-  //pillarHeight,
-  //0,
-  //0,
-  //1
-  //)
-  //pillarCamera.position.set(-pillarWidth / 2, -pillarHeight / 2, 0)
-  //pillarTexScene.add(pillarCamera)
-
-  //uniforms = {
-  //u_time: { value: 0.0 },
-  //u_res: { value: new Vector2(pillarWidth, pillarHeight) },
-  //}
-  //var plane = new THREE.Mesh(
-  //new THREE.PlaneGeometry(100, 100),
-  //new THREE.ShaderMaterial({
-  //uniforms: uniforms,
-  //fragmentShader: SHADERS.bumpMap(),
-  //})
-  //)
-  //pillarTexScene.add(plane)
-  //renderer.setRenderTarget(pillarTex)
-  //renderer.render(pillarTexScene, pillarCamera)
-  //renderer.setRenderTarget(null)
-
-  pillars = [addPillar()]
-  window.pillars = pillars
+  var dome = new THREE.Mesh(
+    new THREE.SphereGeometry(100, 32),
+    new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      shininess: 0,
+      side: THREE.BackSide,
+    })
+  )
+  dome.receiveShadow = true
+  scene.add(dome)
 
   var plane = new THREE.Mesh(
     new THREE.PlaneGeometry(500, 500),
@@ -219,23 +227,40 @@ function main() {
 main()
 
 var th = 0,
-  r = 4
+  r = 8,
+  current_morph = 0,
+  morph_t = 0,
+  morph_dur = 60 * 2
 function animate() {
   requestAnimationFrame(animate)
 
-  //uniforms.u_time.value += 0.1
+  controls.update()
 
-  //controls.update()
-
-  //lights.point.position.set(r * cos(th), r, r * sin(th))
-  //lights.point2.position.set(r * cos(th + PI / 2), r, r * sin(th + PI / 2))
+  lights.point.position.set(r * cos(th), r, r * sin(th))
+  lights.point2.position.set(r * cos(th + PI), r, r * sin(th + PI))
 
   th += 0.01
 
-  //renderer.setRenderTarget(pillarTex)
-  //renderer.render(pillarTexScene, pillarCamera)
+  pillar.morphTargetInfluences[current_morph] =
+    sin((morph_t / morph_dur) * PI) * 1
+  //pillar.morphTargetInfluences[current_morph] = morph_t / morph_dur
 
-  //renderer.setRenderTarget(null)
+  morph_t++
+  if (morph_t > morph_dur) {
+    morph_t = 0
+    current_morph++
+    current_morph %= num_morphs
+  }
+
+  //var sum = 0
+  //for (var i = 0; i < num_morphs; i++) {
+  //pillar.morphTargetInfluences[i] = map(perlin.noise(th, i, 0), 0, 1, -1, 1)
+  //sum += pillar.morphTargetInfluences[i]
+  //}
+  //for (var i = 0; i < num_morphs; i++) {
+  //pillar.morphTargetInfluences[i] /= sum
+  //}
+
   renderer.render(scene, camera)
 }
 animate()

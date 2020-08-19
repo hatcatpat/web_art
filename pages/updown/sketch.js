@@ -6,7 +6,7 @@ function setup() {
 
   noSmooth()
 
-  var lines = 64 * 2
+  var lines = 64
   var steps = 100 * 2
 
   updown = new UpDown(lines, steps)
@@ -57,20 +57,21 @@ class UpDown {
       var prev_y = 0
       for (var j = 0; j <= this.lines; j++) {
         var t = this.t[j][0]
-        var perc = noise(t) * 2
-        //var perc = map(
-        //sin((i / this.steps) * Math.PI * map(noise(i, t), 0, 1, 2, 4) + t),
-        //-1,
-        //1,
-        //0,
-        //1
-        //)
+        //var perc = noise(t) * 2
+        var perc = map(
+          sin((i / this.steps) * Math.PI * map(noise(i, t), 0, 1, 2, 8) + t),
+          -1,
+          1,
+          0,
+          1
+        )
         var y = map(
-          noise(i + t, j + t, t),
+          //noise(i + t, j + t, t),
+          perc,
           0,
           1,
           prev_y,
-          j * this.y_unit * perc
+          j * this.y_unit
         )
         this.points[j][i][1] = y
         prev_y = y
@@ -91,12 +92,12 @@ class UpDown {
   draw() {
     stroke(255)
     strokeWeight(1)
-    noStroke()
+    //noStroke()
     noFill()
     //fill(0, 0, map(sin(this.t[0][0]), -1, 1, 0, 255))
     for (var j = 1; j <= this.lines; j++) {
       var t = this.t[j][0]
-      fill(0, 0, map(noise(j + t, t), 0, 1, 0, 255))
+      //fill(0, 0, map(noise(j + t, t), 0, 1, 0, 255))
       //stroke(0, 0, map(noise(j + t, t), 0, 1, 0, 255))
       beginShape()
 
