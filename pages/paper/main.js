@@ -6,13 +6,16 @@ function blockGeometry(w, h) {
   var geom = new THREE.Geometry()
 
   geom.vertices.push(
-    new THREE.Vector3(0, h + 1, 1),
+    //new THREE.Vector3(0, h + 1, 1),
+    new THREE.Vector3(0, h, 2),
     new THREE.Vector3(1, h, 0),
     new THREE.Vector3(1, -h, 0),
-    new THREE.Vector3(0, -h - 1, 1),
+    //new THREE.Vector3(0, -h - 1, 1),
+    new THREE.Vector3(0, -h, 2),
     new THREE.Vector3(-1, -h, 0),
     new THREE.Vector3(-1, h, 0),
-    new THREE.Vector3(0, h + 1, 1)
+    //new THREE.Vector3(0, h + 1, 1)
+    new THREE.Vector3(0, h, 2)
   )
 
   geom.faces.push(
@@ -88,8 +91,8 @@ function main() {
   //plane.receiveShadow = true
   scene.add(plane)
 
-  for (var i = 0; i < 32; i++) {
-    addBlock(randint(-8, 8), randint(-8, 8), 1, randint(1, 8), randint(0, 1))
+  for (var i = 0; i < 16; i++) {
+    addBlock(randint(-8, 8), randint(-8, 8), 1, randint(3, 8), randint(0, 1))
   }
 
   //addBlock(0, 0, 1, 8, 1)
