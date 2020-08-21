@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="#" />
+    <style>
+      html,
+      body {
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      button {
+        z-index: 1000;
+      }
+    </style>
+    <title></title>
+
+    <script src="../../utils/General/general_utils.js"></script>
+    <script src="../../utils/Three/three_utils.js"></script>
+  </head>
+
+  <body>
+    <button id="startButton">Play</button>
+    <video
+      id="vid"
+      loop
+      crossorigin="anonymous"
+      playsinline
+      style="display: none;"
+      width="100%"
+      height="100%"
+    >
+      <source src="vid.mp4" type="video/mp4" />
+    </video>
+
+    <canvas id="canvas"></canvas>
+    <script src="main.js" type="module"></script>
+  </body>
+</html>
