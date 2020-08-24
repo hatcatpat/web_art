@@ -71,9 +71,9 @@ function animate() {
   uniforms.time.value = performance.now() / 1000
 
   var sp = 0.01
-  //plane.rotateX(sp)
-  //plane.rotateY(sp)
-  //plane.rotateZ(sp)
+  plane.rotateX(sp)
+  plane.rotateY(sp)
+  plane.rotateZ(sp)
 
   //console.log(
   //new THREE.ParametricBufferGeometry(parafunc, 2, 2).attributes.position
