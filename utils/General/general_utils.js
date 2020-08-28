@@ -17,9 +17,10 @@ function choose(arr) {
   return arr[randint(0, arr.length - 1)]
 }
 
-function map(x, out_min, out_max, in_min, in_max) {
+function map(x, in_min, in_max, out_min, out_max) {
   return ((x - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min
 }
+// TODO: Update map to use in,in, out,out; instead of the old out,out, in,in
 
 function rand(lo, hi) {
   return map(Math.random(), lo, hi, 0, 1)

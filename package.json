@@ -19,6 +19,7 @@
     "three": "^0.119.1"
   },
   "devDependencies": {
-    "eslint": "^7.6.0"
+    "eslint": "^7.6.0",
+    "prettier": "2.1.1"
   }
 }

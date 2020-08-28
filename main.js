@@ -19,6 +19,7 @@ function addPage(p, inf) {
   container.appendChild(div)
 }
 
+addPage("ribbon", "three 28 8 20")
 addPage("ds9", "three 24 8 20")
 addPage("ssll", "three 22 8 20")
 addPage("mov", "three 21 8 20")
