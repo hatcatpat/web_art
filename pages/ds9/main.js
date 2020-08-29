@@ -106,6 +106,7 @@ function trig(args) {
     })
   )
 }
+window.trig = trig
 
 function getScale(i, j) {
   return (1 - Math.abs(j - pos) / res.y) * intensity + 1

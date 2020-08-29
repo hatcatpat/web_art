@@ -25,6 +25,16 @@ export class Trig {
     } else if (this.dir.dir == 1) {
       val =
         this.getIntensity(i, this.pos.x, this.res.x) * (j == this.dir.v ? 1 : 0)
+    } else {
+      var x = i - Math.floor(this.res.x / 2)
+      var y = j - Math.floor(this.res.y / 2)
+
+      //var x = i - this.dir.v.x
+      //var y = j - this.dir.v.y
+      var m =
+        (this.dir.v.x / 2) * (this.dir.v.x / 2) +
+        (this.dir.v.y / 2) * (this.dir.v.y / 2)
+      val = 1 - Math.sqrt(x * x + y * y) / Math.sqrt(m)
     }
 
     return val * this.intensity * this.max_intensity
