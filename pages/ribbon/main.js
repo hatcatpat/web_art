@@ -28,24 +28,24 @@ class Ribbon {
     this.res = res
 
     this.geometry = new THREE.PlaneGeometry(this.h, this.h, 1, this.res)
-    //this.material = new THREE.MeshStandardMaterial({
-    //color: col,
-    //side: THREE.DoubleSide,
-    ////wireframe: true,
-    //})
-
-    this.uniforms = {
-      u_time: { value: 0.0 },
-      u_dot_res: { value: 0.7 },
-      u_dot_num: { value: 20 },
-      u_res: { value: new Vector2(width, height) },
-    }
-    this.material = new THREE.ShaderMaterial({
-      uniforms: this.uniforms,
-      fragmentShader: SHADERS.frag.dots(),
-      vertexShader: SHADERS.vert.simple(),
+    this.material = new THREE.MeshStandardMaterial({
+      color: col,
       side: THREE.DoubleSide,
+      //wireframe: true,
     })
+
+    //this.uniforms = {
+    //u_time: { value: 0.0 },
+    //u_dot_res: { value: 0.7 },
+    //u_dot_num: { value: 20 },
+    //u_res: { value: new Vector2(width, height) },
+    //}
+    //this.material = new THREE.ShaderMaterial({
+    //uniforms: this.uniforms,
+    //fragmentShader: SHADERS.frag.dots(),
+    //vertexShader: SHADERS.vert.simple(),
+    //side: THREE.DoubleSide,
+    //})
 
     this.mesh = new THREE.Mesh(this.geometry, this.material)
     this.mesh.rotateZ(PI / 2)
@@ -54,8 +54,8 @@ class Ribbon {
     //this.mesh.castShadow = true
     //this.mesh.receiveShadow = true
 
-    this.direction = Math.random() * TWOPI
-    //this.direction = 0
+    //this.direction = Math.random() * TWOPI
+    this.direction = 0
     this.speed = 0.1 / 5
     this.step = 1
     this.r = this.orig_r
@@ -140,17 +140,18 @@ function main() {
   controls.autoRotate = true
 
   ribs = []
-  var num = 16 * 1
+  var num = 16 * 4
 
   for (var i = 0; i < num; i++) {
     var col = new THREE.Color()
     //"hsl(" + 360 * (i / num) + ",0%,100%)")
-    col.setHSL(i / num, 0, map(i / (num - 1), 0, 1, 0.3, 1))
+    //col.setHSL(i / num, 1, map(i / (num - 1), 0, 1, 0.3, 1))
+    col.setHSL((i / (num - 1)) * 0.1 + 0.5, 1, 0.5)
     //console.log(col)
-    //var h = noise(i / (num - 1), 0, 0) * 2
+    var h = noise(i / (num - 1), 0, 0) * 2
     //var h = Math.random() * 2
-    var h = map(i / (num - 1), 0, 1, 8, 1)
-    ribs.push(new Ribbon(7 * (i / num) + 4, h, col, 96))
+    //var h = map(i / (num - 1), 0, 1, 1, 1)
+    ribs.push(new Ribbon(7 * (i / num) + 4, h, col, 120 * 2))
     scene.add(ribs[i].mesh)
   }
 
