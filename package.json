@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "babylonjs": "^4.1.0",
+    "cannon": "^0.6.2",
     "dat.gui": "^0.7.7",
     "osc": "^2.4.1",
     "p5": "^1.1.9",
