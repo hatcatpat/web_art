@@ -176,9 +176,13 @@ function main() {
   //
 
   renderer.shadowMap.enabled = true
+
+  // center mode
   //camera.fov = 90
   //camera.position.set(0, 0, 0)
   //camera.updateProjectionMatrix()
+
+  // free mode
   camera.position.set(0, 4, 4)
   controls = new OrbitControls(camera, renderer.domElement)
 
@@ -216,7 +220,7 @@ function main() {
   //world.addBody(plane_body)
 
   var sphere = new THREE.Mesh(
-    new THREE.SphereGeometry(8, 32, 32),
+    new THREE.SphereGeometry(8, 64, 64),
     new THREE.MeshStandardMaterial({ color: 0xff0000, side: THREE.BackSide })
   )
   sphere.receiveShadow = true
@@ -228,27 +232,17 @@ function main() {
 }
 main()
 
-var th = 0
-var psi = 0
 function animate() {
   requestAnimationFrame(animate)
 
   world.step(1 / 60)
   pendulum.animate()
 
-  var p = pendulum.balls[0].mesh.position
-  var r = 4
-  var x = r * sin(th) * cos(psi) + p.x
-  var y = r * sin(th) * sin(psi) + p.y
-  var z = r * cos(th) + p.z
+  // center mode
+  //var p = pendulum.balls[0].mesh.position
+  //camera.lookAt(p.x, p.y, p.z)
 
-  //camera.position.set(x, y, z)
-
-  //th += 0.01
-  //psi += 0.01
-  //camera.lookAt(x, y, z)
-
-  controls.update()
+  //controls.update()
 
   renderer.render(scene, camera)
 }
