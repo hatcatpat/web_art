@@ -1,6 +1,6 @@
 import * as THREE from "../../node_modules/three/build/three.module.js"
 window.THREE = THREE
-setup()
+setup({ antialias: true })
 
 import { ImprovedNoise } from "../../node_modules/three/examples/jsm/math/ImprovedNoise.js"
 import { OrbitControls } from "../../node_modules/three/examples/jsm/controls/OrbitControls.js"
@@ -185,6 +185,8 @@ function main() {
   // free mode
   camera.position.set(0, 4, 4)
   controls = new OrbitControls(camera, renderer.domElement)
+  controls.zoomSpeed = 0.5
+  controls.enableDamping = true
 
   var point = new THREE.PointLight(0xffffff, 0.3)
   point.position.set(0, 0, 0)
@@ -219,8 +221,9 @@ function main() {
   //plane_body.position.copy(plane.position)
   //world.addBody(plane_body)
 
+  // free mode
   var sphere = new THREE.Mesh(
-    new THREE.SphereGeometry(8, 64, 64),
+    new THREE.SphereGeometry(8, 128, 128),
     new THREE.MeshStandardMaterial({ color: 0xff0000, side: THREE.BackSide })
   )
   sphere.receiveShadow = true
@@ -242,7 +245,7 @@ function animate() {
   //var p = pendulum.balls[0].mesh.position
   //camera.lookAt(p.x, p.y, p.z)
 
-  //controls.update()
+  controls.update()
 
   renderer.render(scene, camera)
 }
