@@ -48,7 +48,7 @@ class Clacker {
     this.mesh.position.copy(this.body.position)
     this.mesh.quaternion.copy(this.body.quaternion)
 
-    this.collide_obj = { t: 0, dur: 30, active: false }
+    this.collide_obj = { t: 0, dur: 60, active: false }
   }
 
   collide(e) {
@@ -158,7 +158,7 @@ class Clackers {
         i++
       ) {
         var index = Math.floor(Math.random() * this.clackers.length)
-        this.clackers[index].clack(Math.random() * 3 + 1)
+        this.clackers[index].clack(Math.random() * 8 + 1)
       }
       //for (var i = 0; i < this.clackers.length; i++) {
       //this.clackers[i].clack(this.t)
