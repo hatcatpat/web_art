@@ -19,6 +19,7 @@ function addPage(p, inf) {
   container.appendChild(div)
 }
 
+addPage("maze", "p5js 15 10 20")
 addPage("face-clack", "three 4 9 20")
 addPage("clack2", "three 4 9 20")
 addPage("clack", "three 2 9 20")
@@ -28,8 +29,6 @@ addPage("ds9", "three 24 8 20")
 addPage("ssll", "three 22 8 20")
 addPage("mov", "three 21 8 20")
 addPage("seaside", "three 20 8 20")
-//addPage("paper", "three 19 8 20")
-//addPage("updown", "p5 18 8 20")
 //addPage("darkpillar", "three 17 8 20")
 addPage("fairysphere", "three 15 8 20")
 addPage("dotcubes", "three 13 8 20")
