@@ -20,6 +20,7 @@ function addPage(p, inf) {
 }
 
 addPage("maze", "p5js 15 10 20")
+addPage("face-clack2", "three 5 9 20")
 addPage("face-clack", "three 4 9 20")
 addPage("clack2", "three 4 9 20")
 addPage("clack", "three 2 9 20")

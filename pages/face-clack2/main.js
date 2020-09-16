@@ -15,10 +15,24 @@ class Clacker {
     this.y = y
 
     this.ns = 4
+
     this.r =
       r *
       map(perlin.noise(this.x * this.ns, this.y * this.ns, 0), -1, 1, 0.5, 1.5)
 
+    var scx = 0.4
+    var scy = 0.5
+    var pixel_data = getPixelFract(
+      map(this.x, -scx, scx, 0, 1),
+      map(this.y, -scy, scy, 1, 0)
+    )
+    var col = new THREE.Color()
+    col.setRGB(pixel_data.r / 255, pixel_data.g / 255, pixel_data.b / 255)
+
+    //var br = (col.r + col.b + col.g) / 3
+    //br = map(br, 0, 1, 1.5, 0.5)
+
+    //this.r = r * br
     //
 
     this.body = new CANNON.Body({ mass: 1 })
@@ -28,13 +42,6 @@ class Clacker {
     //
 
     var geom = new THREE.SphereGeometry(this.r, 32, 32)
-
-    var pixel_data = getPixelFract(
-      map(this.x, -1, 1, 0, 1),
-      map(this.y, -1, 1, 1, 0)
-    )
-    var col = new THREE.Color()
-    col.setRGB(pixel_data.r / 255, pixel_data.g / 255, pixel_data.b / 255)
     //col.setHSL(
     //0,
     //0,
@@ -54,9 +61,18 @@ class Clacker {
   }
 
   animate() {
-    this.body.position.z = 0
     this.mesh.position.copy(this.body.position)
     this.mesh.quaternion.copy(this.body.quaternion)
+
+    //var p = this.body.position
+    //if (Math.abs(p.x) > 2 || Math.abs(p.y) > 2) {
+    //this.reset()
+    //}
+  }
+
+  reset() {
+    this.body.position.set(this.x, this.y, 0)
+    this.body.velocity.set(0, 0, 0)
   }
 }
 
@@ -87,6 +103,12 @@ class Clackers {
     }
   }
 
+  reset() {
+    for (var i = 0; i < this.clackers.length; i++) {
+      this.clackers[i].reset()
+    }
+  }
+
   add(scene, world) {
     for (var i = 0; i < this.clackers.length; i++) {
       this.clackers[i].add(scene, world)
@@ -110,10 +132,10 @@ function getImageData(image) {
 }
 
 function getPixelFract(x, y) {
-  var x = Math.floor(image_data.width * x)
-  var y = Math.floor(image_data.height * y)
+  var x = Math.floor(image_data.width * x) * 4
+  var y = Math.floor(image_data.height * y) * 4
 
-  var position = (x + image_data.width * y) * 4,
+  var position = x + image_data.width * y,
     data = image_data.data
   return {
     r: data[position],
@@ -123,36 +145,72 @@ function getPixelFract(x, y) {
   }
 }
 
+var seed = performance.now()
+var hfBody
+function setupHeightmap() {
+  // Create a matrix of height values
+  var matrix = []
+  var h = map(Math.random(), 0, 1, 0.2, 1)
+  var sc = map(Math.random(), 0, 1, 2, 4)
+  var sizeX = 15 * 4,
+    sizeY = 15 * 4
+  for (var i = 0; i < sizeX; i++) {
+    matrix.push([])
+    for (var j = 0; j < sizeY; j++) {
+      var height =
+        map(
+          perlin.noise((i / sizeX) * sc, (j / sizeY) * sc, seed),
+          -1,
+          1,
+          0,
+          1
+        ) * h
+      if (i === 0 || i === sizeX - 1 || j === 0 || j === sizeY - 1) height = -h
+      matrix[i].push(height)
+    }
+  }
+
+  // Create the heightfield
+  var sz = 0.05
+  var hfShape = new CANNON.Heightfield(matrix, {
+    elementSize: sz,
+  })
+  hfBody = new CANNON.Body({ mass: 0 })
+  hfBody.position.z = -h
+  hfBody.position.x = (-sizeX / 2) * sz
+  hfBody.position.y = (-sizeY / 2) * sz
+  hfBody.addShape(hfShape)
+  world.addBody(hfBody)
+}
+
 var world
 var clackers
 var controls, perlin
 var image_data
-var left_plane,
-  right_plane,
-  right_orig_x,
-  plane_pos_dur = 0.01 * 60
 var w
 function main() {
   world = new CANNON.World()
   world.broadphase = new CANNON.NaiveBroadphase()
   world.solver.iterations = 10
-  world.gravity.set(0, -1, 0)
+  world.gravity.set(0, 0, -1)
 
   //
 
-  var aspect = Math.min(width, height) / Math.max(width, height)
-  w = 0.75
-  var h = 0.75
-  camera = new THREE.OrthographicCamera(
-    -w,
-    //0,
-    w,
-    h * aspect,
-    -h * aspect,
-    -100,
-    100
-  )
-  scene.add(camera)
+  camera.position.z = 1
+
+  //var aspect = Math.min(width, height) / Math.max(width, height)
+  //w = 0.75
+  //var h = 0.75
+  //camera = new THREE.OrthographicCamera(
+  //-w,
+  ////0,
+  //w,
+  //h * aspect,
+  //-h * aspect,
+  //-100,
+  //100
+  //)
+  //scene.add(camera)
 
   //
 
@@ -162,49 +220,48 @@ function main() {
 
   //
 
-  var image_texture = new THREE.TextureLoader().load("girl.jpg", function () {
+  var image_texture = new THREE.TextureLoader().load("lisa.jpg", function () {
     image_data = getImageData(image_texture.image)
-    clackers = new Clackers(25)
+    clackers = new Clackers(23)
     clackers.add(scene, world)
     window.clackers = clackers
-
-    right_plane = new CANNON.Body({ mass: 0 })
-    right_plane.addShape(new CANNON.Plane())
-    //right_plane.position.x = w
-    right_orig_x = clackers.m / 2 + clackers.unit / 2
-    right_plane.position.x = right_orig_x
-    right_plane.quaternion.setFromAxisAngle(
-      new CANNON.Vec3(0, 1, 0),
-      (3 * Math.PI) / 2
-    )
-    world.add(right_plane)
-
-    left_plane = new CANNON.Body({ mass: 0 })
-    left_plane.addShape(new CANNON.Plane())
-    left_plane.position.x = -right_orig_x
-    left_plane.quaternion.setFromAxisAngle(
-      new CANNON.Vec3(0, 1, 0),
-      Math.PI / 2
-    )
-    world.add(left_plane)
   })
 
   //
 
+  setupHeightmap()
+
   var plane = new CANNON.Body({ mass: 0 })
   plane.addShape(new CANNON.Plane())
-  plane.position.y = -h * 0.8
+  plane.position.x = -1
+  plane.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), (1 * Math.PI) / 2)
+  world.add(plane)
+
+  var plane = new CANNON.Body({ mass: 0 })
+  plane.addShape(new CANNON.Plane())
+  plane.position.x = 1
+  plane.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), (3 * Math.PI) / 2)
+  world.add(plane)
+
+  var plane = new CANNON.Body({ mass: 0 })
+  plane.addShape(new CANNON.Plane())
+  plane.position.y = 1
+  plane.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), (1 * Math.PI) / 2)
+  world.add(plane)
+
+  var plane = new CANNON.Body({ mass: 0 })
+  plane.addShape(new CANNON.Plane())
+  plane.position.y = -1
   plane.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), (3 * Math.PI) / 2)
   world.add(plane)
 
   //var plane_mesh = new THREE.Mesh(
   //new THREE.PlaneGeometry(1, 1),
-  //new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide })
+  //new THREE.MeshBasicMaterial({ color: 0xff0000 })
   //)
-  //plane_mesh.quaternion.copy(plane.quaternion)
   //plane_mesh.position.copy(plane.position)
+  //plane_mesh.quaternion.copy(plane.quaternion)
   //scene.add(plane_mesh)
-  //window.plane_mesh = plane_mesh
 
   //
 
@@ -221,9 +278,15 @@ function onKeyDown(event) {
   if (keycode == 80) {
     clackers_playing = true
   }
+  if (keycode == 81) {
+    world.removeBody(hfBody)
+    seed = performance.now()
+    setupHeightmap()
+    clackers.reset()
+  }
 }
 
-var t = -0.01 * 60 * 2
+var t = 0
 function animate() {
   requestAnimationFrame(animate)
 
@@ -233,18 +296,6 @@ function animate() {
     if (clackers != null) {
       clackers.animate()
     }
-
-    var n = map(perlin.noise(t, 0, 0), -1, 1, 0.3, 1.5) * right_orig_x
-    if (t < plane_pos_dur && t >= 0) {
-      right_plane.position.x = THREE.MathUtils.lerp(
-        right_orig_x,
-        n,
-        t / plane_pos_dur
-      )
-    } else if (t >= 0) {
-      right_plane.position.x = n
-    }
-    left_plane.position.x = -right_plane.position.x
 
     t += 0.01
   }

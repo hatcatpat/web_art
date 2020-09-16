@@ -1,6 +1,6 @@
 import * as THREE from "../../node_modules/three/build/three.module.js"
 window.THREE = THREE
-setup()
+setup({ antialias: true })
 
 import { ImprovedNoise } from "../../node_modules/three/examples/jsm/math/ImprovedNoise.js"
 import { OrbitControls } from "../../node_modules/three/examples/jsm/controls/OrbitControls.js"
@@ -63,6 +63,7 @@ class Clacker {
   }
 
   clack(force, t) {
+    //this.collide_obj.active = true
     var dir = new THREE.Vector3()
     //dir.x = perlin.noise(this.x, this.y, t)
     //dir.y = perlin.noise(this.x, this.y, -t)
@@ -92,6 +93,8 @@ class Clacker {
     this.mesh.scale.set(sc, sc, 1)
 
     this.body.shapes[0].radius = this.r * sc
+    this.body.shapes[0].boundingSphereRadiusNeedsUpdate = true
+    this.body.shapes[0].updateBoundingSphereRadius()
 
     //
 
@@ -154,7 +157,7 @@ class Clackers {
     if (this.clack_timer.t > this.clack_timer.dur) {
       for (
         var i = 0;
-        i < Math.floor((Math.random() * this.clackers.length) / 8);
+        i < Math.floor(Math.random() * this.clackers.length);
         i++
       ) {
         var index = Math.floor(Math.random() * this.clackers.length)
@@ -167,7 +170,7 @@ class Clackers {
     }
 
     this.clack_timer.t++
-    this.t += 0.01
+    this.t += 0.05
   }
 
   add(scene, world) {
@@ -180,6 +183,13 @@ class Clackers {
 //
 //
 //
+
+function loosen(v) {
+  for (var i = 0; i < clackers.clackers.length; i++) {
+    clackers.clackers[i].spring.restLength = v * Math.random()
+  }
+}
+window.loosen = loosen
 
 var world
 var clackers
@@ -224,12 +234,26 @@ function main() {
 }
 main()
 
+var clackers_playing = false
+document.addEventListener("keydown", onKeyDown, false)
+function onKeyDown(event) {
+  var keycode = event.which
+  if (keycode == 80) {
+    //animate()
+    clackers_playing = true
+  }
+  if (keycode == 81) {
+    loosen(0.2)
+  }
+}
+
 function animate() {
   requestAnimationFrame(animate)
 
-  world.step(1 / 60)
-
-  clackers.animate()
+  if (clackers_playing) {
+    world.step(1 / 60)
+    clackers.animate()
+  }
 
   renderer.render(scene, camera)
 }
