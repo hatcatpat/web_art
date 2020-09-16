@@ -19,6 +19,7 @@ function addPage(p, inf) {
   container.appendChild(div)
 }
 
+addPage("refract", "p5js 16 10 20")
 addPage("maze", "p5js 15 10 20")
 addPage("face-clack2", "three 5 9 20")
 addPage("face-clack", "three 4 9 20")
