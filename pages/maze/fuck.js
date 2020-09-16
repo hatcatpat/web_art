@@ -9,13 +9,31 @@ function setup() {
 
   t = 0
 
-  //res = 64 + 8
-  res = 256
+  res = 64 + 8
+  //res = 256
   grid = Array(res)
   for (var i = 0; i < res; i++) {
     grid[i] = Array(res)
     for (var j = 0; j < res; j++) {
       var v = 0
+
+      if (
+        grid_rect(i, j, 4, 4, 4, 24) || // F
+        grid_rect(i, j, 8, 4, 8, 4) ||
+        grid_rect(i, j, 8, 16, 8, 4) ||
+        grid_rect(i, j, 20, 16, 4, 12) || // U
+        grid_rect(i, j, 24, 24, 8, 4) ||
+        grid_rect(i, j, 32, 16, 4, 12) ||
+        grid_rect(i, j, 40, 16, 4, 12) || // C
+        grid_rect(i, j, 44, 16, 4, 4) ||
+        grid_rect(i, j, 44, 24, 4, 4) ||
+        grid_rect(i, j, 52, 4, 4, 24) || // K
+        grid_rect(i, j, 56, 16, 4, 4) ||
+        grid_rect(i, j, 60, 12, 4, 4) ||
+        grid_rect(i, j, 60, 20, 4, 4)
+      ) {
+        v = 1
+      }
 
       grid[i][j] = v
     }
@@ -39,6 +57,24 @@ function generate() {
   for (var i = 0; i < res; i++) {
     for (var j = 0; j < res; j++) {
       var v = 0
+
+      if (
+        grid_rect(i, j, 4, 4, 4, 24) || // F
+        grid_rect(i, j, 8, 4, 8, 4) ||
+        grid_rect(i, j, 8, 16, 8, 4) ||
+        grid_rect(i, j, 20, 16, 4, 12) || // U
+        grid_rect(i, j, 24, 24, 8, 4) ||
+        grid_rect(i, j, 32, 16, 4, 12) ||
+        grid_rect(i, j, 40, 16, 4, 12) || // C
+        grid_rect(i, j, 44, 16, 4, 4) ||
+        grid_rect(i, j, 44, 24, 4, 4) ||
+        grid_rect(i, j, 52, 4, 4, 24) || // K
+        grid_rect(i, j, 56, 16, 4, 4) ||
+        grid_rect(i, j, 60, 12, 4, 4) ||
+        grid_rect(i, j, 60, 20, 4, 4)
+      ) {
+        v = 1
+      }
       grid[i][j] = v
     }
   }
@@ -61,8 +97,8 @@ function draw() {
 
   //if (t % 2 == 0) {
   for (var i = 0; i < 16; i++) {
-    //if (running) {
-    while (running) {
+    if (running) {
+      //while (running) {
       mr.draw()
     }
   }
@@ -94,12 +130,12 @@ function draw_grid() {
       } else if (i == mr.x && j == mr.y) {
         col = color(255, 0, 0)
       } else {
-        col = color(noise((i / res) * 2, (j / res) * 2) * 155 + 100)
-        //col = color(255)
+        //col = color(noise((i / res) * 4, (j / res) * 4) * 255)
+        col = color(255)
       }
 
       fill(col)
-      stroke(col)
+      //stroke(col)
       rect(i * unit, j * unit, unit, unit)
     }
   }
@@ -156,10 +192,10 @@ class MazeRunner {
         this.y = this.points[this.curr_point][1]
         this.retries++
       } else {
-        //generate()
+        generate()
         this.x = -1
         this.y = -1
-        running = false
+        //running = false
         //noLoop()
       }
     } else {
