@@ -1,14 +1,14 @@
-//let image
-//function preload() {
-//image = loadImage("grace.png")
-//image = loadImage("text.png")
-//image = loadImage("strawb.png")
-//image = loadImage("words.png")
-//}
+let image
+function preload() {
+  //image = loadImage("grace.png")
+  image = loadImage("text.png")
+  //image = loadImage("strawb.png")
+  //image = loadImage("words.png")
+}
 
 let grid, sz, unit, res
 let runners, running, t
-let hue, mode, hue_range, t_sp
+let hue, mode, hue_range
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL)
   //noSmooth()
@@ -18,55 +18,43 @@ function setup() {
 
   t = 0
 
-  //t_sp = random(4, 0.001)
-  t_sp = 0.5
-
-  console.log("t_sp", t_sp)
-
   //res = 16 * 5
-  //res = 256 * 2
-  res_y = 256 * 2
-  //res_y = 16 * 5
-  res_x = floor((res_y * width) / height)
+  res = 256 * 2
 
   mode = Math.floor(random(0, 2))
 
-  //image.resize(res, res)
+  image.resize(res, res)
 
   var possible_starts = []
-  var num_runners = 128 * 1
-  //var num_runners = 64
+  var num_runners = 128 * 4
 
   //hue = 0
   hue = random(0, 360)
-  hue_range = random(0, 120)
-  console.log("hue", hue)
-  console.log("hue_range", hue_range)
-  //hue = 100
-  //hue_range = 60
+  //hue_range = random(0, 120)
+  hue_range = 60
 
-  grid = Array(res_x)
-  for (var i = 0; i < res_x; i++) {
-    grid[i] = Array(res_y)
-    for (var j = 0; j < res_y; j++) {
+  grid = Array(res)
+  for (var i = 0; i < res; i++) {
+    grid[i] = Array(res)
+    for (var j = 0; j < res; j++) {
       var v = 0
+      //var c = image.get(i, j)
+      //if ((c[0] + c[1] + c[2]) / (255 * 3) > 0.5) {
+      //v = num_runners
+      //v = -1
+      //}
 
-      //var dx = i - res_x / 2
-      //var dy = j - res_y / 2 + 50
-      //if (Math.sqrt(dx * dx + dy * dy) < (res_y / 2) * 0.7 && v == 0) {
-      //possible_starts.push([i, j])
-      //if (i == 0 || i == res_x - 1 || j == 0 || j == res_y - 1) {
-      //if (i == 0 || j == res_y - 1) {
-      if (random(0, 100) < 2) {
-        possible_starts.push([i, j])
-      }
+      //var dx = i - res / 2
+      //var dy = j - res / 2 + 50
+      //if (Math.sqrt(dx * dx + dy * dy) < (res / 2) * 0.7 && v == 0) {
+      possible_starts.push([i, j])
       //}
-      //}
+
       grid[i][j] = v
     }
   }
 
-  unit = sz / res_y
+  unit = (sz / res) * 0.9
 
   runners = []
 
@@ -85,7 +73,7 @@ function draw() {
   noStroke()
 
   translate(-width / 2, -height / 2)
-  translate(width / 2 - (unit * res_x) / 2, height / 2 - (unit * res_y) / 2)
+  translate(width / 2 - (unit * res) / 2, height / 2 - (unit * res) / 2)
 
   running = true
   //for (var i = 0; i < 128; i++) {
@@ -98,14 +86,11 @@ function draw() {
       if (runners[j].running) {
         runners[j].draw()
       }
-      //t++
     }
-
-    t += t_sp
-    //t = floor(random(0, 4))
   }
   noLoop()
   //}
+  t++
 
   draw_grid()
   //draw_grid_lines()
@@ -114,17 +99,17 @@ function draw() {
 function draw_grid() {
   noStroke()
   fill(0)
-  //rect(-unit, 0, unit, unit * res)
-  //rect(unit * res, 0, unit, unit * res)
-  //rect(-unit, -unit, unit * (res + 2), unit)
-  //rect(-unit, unit * res, unit * (res + 2), unit)
+  rect(-unit, 0, unit, unit * res)
+  rect(unit * res, 0, unit, unit * res)
+  rect(-unit, -unit, unit * (res + 2), unit)
+  rect(-unit, unit * res, unit * (res + 2), unit)
 
   var col = color(255, 0, 0)
   strokeWeight(1)
   noStroke()
-  var sc = 1
-  for (var i = 0; i < res_x; i++) {
-    for (var j = 0; j < res_y; j++) {
+  var sc = 5
+  for (var i = 0; i < res; i++) {
+    for (var j = 0; j < res; j++) {
       if (grid[i][j] == 0 || grid[i][j] == 1) {
         col = color(0)
         //col = color(255)
@@ -132,7 +117,8 @@ function draw_grid() {
         var b = 0
         var s = 75
         //var h = noise((i / res) * sc, (j / res) * sc) * 100 + 100
-        var h = noise((i / res_x) * sc, (j / res_y) * sc) * hue_range
+        var h = noise((i / res) * sc, (j / res) * sc) * hue_range
+        //var h = noise((i / res) * sc, (j / res) * sc) * 80 - 40
         //var s = 100
 
         if (grid[i][j] == -1) {
@@ -208,11 +194,8 @@ class MazeRunner {
 
     if (this.dirs.length == 0) {
       if (
-        this.retries <
-        this.points.length - 1
-        //&&
-        //this.points.length < 128 * 4
-        //this.points.length < 128
+        this.retries < this.points.length - 1 &&
+        this.points.length < 128 * 4
       ) {
         this.points.splice(this.curr_point, 1)
         this.curr_point = this.points.length - 1 - this.retries
@@ -229,17 +212,14 @@ class MazeRunner {
       }
     } else {
       this.retries = 0
-      this.move(
-        this.dirs[floor(noise(t) * this.dirs.length) % this.dirs.length]
-      )
       //if (random(0, 100) < 50) {
-      //if (this.type % 2 == 0) {
-      //if (mode == 0) {
-      //this.move(this.dirs[Math.floor(random(0, this.dirs.length))])
-      //} else {
-      //this.move(this.dirs[this.type % this.dirs.length])
-      //this.move(this.dirs[0])
-      //}
+      if (this.type % 2 == 0) {
+        //if (mode == 0) {
+        this.move(this.dirs[Math.floor(random(0, this.dirs.length))])
+      } else {
+        this.move(this.dirs[this.type % this.dirs.length])
+        //this.move(this.dirs[0])
+      }
     }
   }
 
